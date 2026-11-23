@@ -9,7 +9,15 @@ internet erişimli bir **Arch ortamında** çalıştırılmalıdır. Windows üz
 en pratik yolu WSL2 içine Arch Linux kurmak veya geçici bir Arch sanal makinesi
 kullanmaktır. Hazırlanan klasörü Ventoy bölümüne kopyalayın.
 
-## Hazırlama
+## Windows'tan paketleri hazırlama (WSL/VM yoksa)
+
+GitHub'da **Actions → Build offline XFCE bundle → Run workflow** seçin.
+Workflow Arch konteynerinde paketleri indirip `arch-xfce-offline-bundle`
+artifact'ını üretir. Artifact'ı Windows'a indirip içeriğini Ventoy bölümüne
+kopyalayın. Bu yöntem GitHub bağlantısı gerektirir; kurulum bilgisayarında
+internet gerekmez.
+
+## Arch ortamında alternatif hazırlama
 
 Arch ortamında:
 
