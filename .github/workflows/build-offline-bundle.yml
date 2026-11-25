@@ -58,6 +58,7 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
+          pacman -S --noconfirm github-cli
           tag="offline-xfce-r${GITHUB_RUN_NUMBER}"
           gh release create "$tag" \
             arch-xfce-offline-bundle.tar.gz \
