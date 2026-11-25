@@ -76,6 +76,7 @@ prepare() {
 [options]
 Architecture = auto
 SigLevel = Required DatabaseOptional
+XferCommand = /usr/bin/curl --fail --location --silent --show-error --connect-timeout 30 --speed-limit 2048 --speed-time 60 --retry 5 --retry-all-errors --retry-delay 3 --retry-max-time 900 --output %o %u
 
 [core]
 Server = https://archive.archlinux.org/repos/$date_path/core/os/\$arch
