@@ -17,10 +17,11 @@ OS install.
    onto the Ventoy data partition. Keep the `.pkg.tar.zst` packages and
    `offline.db` together inside the `packages` directory.
 
-The workflow uses the Arch Linux Archive snapshot dated `2026/11/01`, matching
-the `archlinux-2026.11.01-x86_64.iso`. Do not mix packages from another snapshot
-with this ISO; Arch is a rolling release and mismatched package versions can
-break installation.
+The workflow downloads from Arch's official rolling mirror and resolves every
+dependency against an empty target-system package database. The ISO is used to
+boot the installer; the new system is installed from one internally consistent
+package set downloaded during the workflow. The ISO's own package versions do
+not need to match the newly installed system.
 
 ## Install completely offline
 

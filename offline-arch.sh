@@ -7,7 +7,6 @@ set -Eeuo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 MODE="${1:-}"
 BUNDLE="${2:-$SCRIPT_DIR/offline-bundle}"
-ARCHIVE_DATE="${ARCHIVE_DATE:-2026/11/01}"
 
 packages=(
   base base-devel archlinux-keyring linux linux-headers linux-firmware amd-ucode intel-ucode
@@ -63,7 +62,8 @@ prepare() {
   BUNDLE="$(cd "$BUNDLE" && pwd)"
   local pkgdir="$BUNDLE/packages"
   local config=/tmp/archoffline-pacman.conf
-  local date_path="${ARCHIVE_DATE//-//}"
+  local build_time
+  build_time="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   local builddb verifydb
   builddb="$(mktemp -d /tmp/archoffline-build-db.XXXXXX)"
   verifydb="$(mktemp -d /tmp/archoffline-verify-db.XXXXXX)"
@@ -76,16 +76,15 @@ prepare() {
 [options]
 Architecture = auto
 SigLevel = Required DatabaseOptional
-XferCommand = /usr/bin/curl --fail --location --silent --show-error --connect-timeout 30 --speed-limit 2048 --speed-time 60 --retry 5 --retry-all-errors --retry-delay 3 --retry-max-time 900 --output %o %u
 
 [core]
-Server = https://archive.archlinux.org/repos/$date_path/core/os/\$arch
+Server = https://geo.mirror.pkgbuild.com/\$repo/os/\$arch
 
 [extra]
-Server = https://archive.archlinux.org/repos/$date_path/extra/os/\$arch
+Server = https://geo.mirror.pkgbuild.com/\$repo/os/\$arch
 EOF
 
-  info "Arch snapshot: $date_path"
+  info "Arch resmi rolling mirror'ı eşitleniyor."
   pacman -Syy --dbpath "$builddb" --config "$config" --noconfirm
   info "Temel sistem, base-devel, kernel, XFCE ve tüm bağımlılıklar indiriliyor."
   pacman -Sw --dbpath "$builddb" --config "$config" --noconfirm \
@@ -113,20 +112,22 @@ EOF
     mv "$pkgdir/offline.db.materialized" "$pkgdir/offline.db"
   fi
   printf '%s\n' "${packages[@]}" > "$BUNDLE/package-manifest.txt"
-  printf '%s\n' "$date_path" > "$BUNDLE/arch-snapshot.txt"
+  printf 'Source: https://geo.mirror.pkgbuild.com\nBuilt at UTC: %s\n' \
+    "$build_time" > "$BUNDLE/package-set-info.txt"
   (
     cd "$BUNDLE"
     cp "$SCRIPT_DIR/offline-arch.sh" .
     cp "$SCRIPT_DIR/README.md" .
     cat > README.txt <<EOF
 Offline Arch Linux + XFCE bundle
-Arch snapshot: $date_path
+Built at UTC: $build_time
+Source: https://geo.mirror.pkgbuild.com
 Includes base, base-devel, Linux kernel/headers, firmware, GRUB, XFCE,
 common filesystems, networking, audio, graphics drivers, fonts and utilities.
 All direct package dependencies were resolved from the local repository.
 Verify files with: sha256sum -c SHA256SUMS
 EOF
-    sha256sum package-manifest.txt arch-snapshot.txt packages/* > SHA256SUMS
+    sha256sum package-manifest.txt package-set-info.txt packages/* > SHA256SUMS
     sha256sum offline-arch.sh README.md README.txt >> SHA256SUMS
   )
 

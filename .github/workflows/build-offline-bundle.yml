@@ -20,7 +20,7 @@ jobs:
           pacman-key --init
           pacman-key --populate archlinux
           pacman -Sy --noconfirm archlinux-keyring github-cli curl
-          ARCHIVE_DATE=2026/11/01 ./offline-arch.sh prepare offline-bundle
+          ./offline-arch.sh prepare offline-bundle
           tar -C offline-bundle -czf arch-xfce-offline-bundle.tar.gz .
 
       - name: Upload USB bundle
