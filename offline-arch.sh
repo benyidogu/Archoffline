@@ -88,7 +88,7 @@ EOF
   pacman -Syy --dbpath "$builddb" --config "$config" --noconfirm
   info "Temel sistem, base-devel, kernel, XFCE ve tüm bağımlılıklar indiriliyor."
   pacman -Sw --dbpath "$builddb" --config "$config" --noconfirm \
-    --cachedir "$pkgdir" "${packages[@]}"
+    --disable-download-timeout --cachedir "$pkgdir" "${packages[@]}"
 
   shopt -s nullglob
   local archives=("$pkgdir"/*.pkg.tar.zst)
@@ -333,7 +333,7 @@ printf 'KEYMAP=%s\n' "$KEYMAP" > /etc/vconsole.conf
 printf '%s\n' "$HOSTNAME" > /etc/hostname
 printf '127.0.0.1 localhost\n::1 localhost\n127.0.1.1 %s.localdomain %s\n' "$HOSTNAME" "$HOSTNAME" > /etc/hosts
 printf 'root:%s\n' "$ROOT_PASSWORD" | chpasswd
-useradd -m -G wheel,audio,video,storage,optical,input "$USERNAME"
+useradd -m -G wheel "$USERNAME"
 printf '%s:%s\n' "$USERNAME" "$USER_PASSWORD" | chpasswd
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 visudo -c
@@ -355,6 +355,7 @@ EOF
   cat > /boot/loader/entries/arch.conf <<EOF
 title Arch Linux
 linux /vmlinuz-linux
+$(if grep -q GenuineIntel /proc/cpuinfo; then printf 'initrd /intel-ucode.img\n'; elif grep -q AuthenticAMD /proc/cpuinfo; then printf 'initrd /amd-ucode.img\n'; fi)
 initrd /initramfs-linux.img
 options root=UUID=$ROOT_UUID rw
 EOF
